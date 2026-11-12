@@ -1,0 +1,6 @@
+{
+  "name": "Red Frontier: Mars Mission Designer",
+  "description": "An interactive conceptual Mars mission engineering designer and phase-by-phase simulation game.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
