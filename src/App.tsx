@@ -11,6 +11,8 @@ import {
 } from './types/missionDesigner';
 import { MISSION_CHALLENGES } from './data/aerospaceSpecs';
 import { ChallengeSelectView } from './components/ChallengeSelectView';
+import { ExpeditionSetup } from './components/ExpeditionSetup';
+import { LandingSiteSelect } from './components/LandingSiteSelect';
 import { MissionDesignDeck } from './components/MissionDesignDeck';
 import { StageFlightDeck } from './components/StageFlightDeck';
 import { Mars3DGameView } from './components/Mars3DGameView';
@@ -21,6 +23,8 @@ import {
 } from './engine/simulation';
 
 type AppScreen = 
+  | 'setup'
+  | 'site'
   | 'challenge_select' 
   | 'mission_design' 
   | 'flight_sim' 
@@ -28,7 +32,10 @@ type AppScreen =
   | 'debrief';
 
 export function App() {
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>('challenge_select');
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>('setup');
+  const [expeditionCraft, setExpeditionCraft] = useState<string>('odyssey');
+  const [expeditionObjective, setExpeditionObjective] = useState<string>('obj_habitability');
+
   const [activeChallenge, setActiveChallenge] = useState<MissionChallenge>(MISSION_CHALLENGES[0]);
   const [designSelection, setDesignSelection] = useState<MissionDesignSelection | null>(null);
   const [designTradeOffs, setDesignTradeOffs] = useState<CalculatedTradeOffs | null>(null);
@@ -37,13 +44,54 @@ export function App() {
   const [simState, setSimState] = useState<SimulationState | null>(null);
   const [debrief, setDebrief] = useState<MissionDebrief | null>(null);
 
-  // 1. Player chooses a challenge from ChallengeSelectView
+  // 1. Streamlined flow: Step 1 (Expedition Setup) -> Step 2 (Landing Site) -> Step 3 (3D Mars Surface)
+  const handleExpeditionSetupComplete = (spacecraftId: string, objectiveId: string) => {
+    setExpeditionCraft(spacecraftId);
+    setExpeditionObjective(objectiveId);
+    setCurrentScreen('site');
+  };
+
+  const handleExpeditionLaunch = (siteId: string) => {
+    const roverType = expeditionCraft === 'kestrel' ? 'rover_light' : expeditionCraft === 'titan' ? 'rover_science_lab' : 'rover_explorer';
+    const mappedConfig: MissionConfig = {
+      objectiveId: expeditionObjective,
+      spacecraftId: expeditionCraft,
+      propulsionId: expeditionCraft === 'titan' ? 'ntp_cerberus' : 'chem_raptor',
+      propellantType: 'methalox',
+      propellantMassKg: expeditionCraft === 'titan' ? 240000 : 130000,
+      powerSystemId: expeditionCraft === 'titan' ? 'hybrid_grid' : 'rtg_plutonium',
+      batteryId: 'batt_solidstate',
+      commSystemId: 'comm_optical',
+      selectedInstrumentIds: ['inst_mastcam', 'inst_pixl', 'inst_sherloc', 'inst_moxie'],
+      roverId: roverType,
+      lifeSupport: {
+        crewSize: expeditionCraft === 'kestrel' ? 2 : expeditionCraft === 'titan' ? 6 : 4,
+        rationDaysFood: 680,
+        rationDaysWater: 680,
+        rationDaysOxygen: 680,
+        suitType: 'advanced_hybrid',
+        habitatShielding: 'polyethylene_water_shield'
+      },
+      landingSiteId: siteId,
+      plannedSurfaceSols: 45,
+      budgetLimitM: 2800,
+      difficulty: 'standard',
+      randomSeed: 42
+    };
+
+    setConfig(mappedConfig);
+    const initialSim = initSimulationState(mappedConfig);
+    setSimState(initialSim);
+    setCurrentScreen('surface_3d');
+  };
+
+  // 2. Advanced aerospace flow: Player chooses a challenge from ChallengeSelectView
   const handleSelectChallenge = (challenge: MissionChallenge) => {
     setActiveChallenge(challenge);
     setCurrentScreen('mission_design');
   };
 
-  // 2. Player completes spacecraft design & trade-offs in MissionDesignDeck
+  // 3. Player completes spacecraft design & trade-offs in MissionDesignDeck
   const handleProceedToFlight = (selection: MissionDesignSelection, tradeOffs: CalculatedTradeOffs) => {
     setDesignSelection(selection);
     setDesignTradeOffs(tradeOffs);
@@ -84,12 +132,12 @@ export function App() {
     setCurrentScreen('flight_sim');
   };
 
-  // 3. Stage-by-Stage flight concludes with touchdown -> transition to 3D surface game
+  // 4. Stage-by-Stage flight concludes with touchdown -> transition to 3D surface game
   const handleLandingComplete = () => {
     setCurrentScreen('surface_3d');
   };
 
-  // 4. Return to airlock in 3D Mars view -> conclude mission and compute debrief
+  // 5. Return to airlock in 3D Mars view -> conclude mission and compute debrief
   const handleConcludeMission = () => {
     if (!simState) return;
     const finalDebrief = evaluateMissionOutcome(simState);
@@ -113,21 +161,53 @@ export function App() {
     setCurrentScreen('debrief');
   };
 
-  // 5. Replay from debrief
+  // 6. Abort / Exit from 3D exploration
+  const handleAbort = () => {
+    if (designSelection) {
+      setCurrentScreen('mission_design');
+    } else {
+      setCurrentScreen('site');
+    }
+  };
+
+  // 7. Replay from debrief
   const handleNewExpedition = () => {
     setSimState(null);
     setDebrief(null);
-    setCurrentScreen('challenge_select');
+    setDesignSelection(null);
+    setDesignTradeOffs(null);
+    setCurrentScreen('setup');
   };
 
   return (
     <div className="w-full min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-orange-500 selection:text-white overflow-hidden">
-      {/* 1. Challenge Selector */}
-      {currentScreen === 'challenge_select' && (
-        <ChallengeSelectView onSelectChallenge={handleSelectChallenge} />
+      {/* 1. Streamlined Expedition Setup (DESIGNS.md Step 1) */}
+      {currentScreen === 'setup' && (
+        <ExpeditionSetup
+          onComplete={handleExpeditionSetupComplete}
+          onSwitchToEngineeringMode={() => setCurrentScreen('challenge_select')}
+        />
       )}
 
-      {/* 2. Interactive Engineering Design Deck */}
+      {/* 2. Landing Site Selector (DESIGNS.md Step 2) */}
+      {currentScreen === 'site' && (
+        <LandingSiteSelect
+          spacecraftId={expeditionCraft}
+          objectiveId={expeditionObjective}
+          onLaunch={handleExpeditionLaunch}
+          onBack={() => setCurrentScreen('setup')}
+        />
+      )}
+
+      {/* 3. Advanced Challenge Selector */}
+      {currentScreen === 'challenge_select' && (
+        <ChallengeSelectView
+          onSelectChallenge={handleSelectChallenge}
+          onSwitchToExpeditionMode={() => setCurrentScreen('setup')}
+        />
+      )}
+
+      {/* 4. Interactive Engineering Design Deck */}
       {currentScreen === 'mission_design' && activeChallenge && (
         <MissionDesignDeck
           challenge={activeChallenge}
@@ -136,7 +216,7 @@ export function App() {
         />
       )}
 
-      {/* 3. Stage-by-Stage Mission Flight Operations */}
+      {/* 5. Stage-by-Stage Mission Flight Operations */}
       {currentScreen === 'flight_sim' && activeChallenge && designSelection && designTradeOffs && (
         <StageFlightDeck
           challenge={activeChallenge}
@@ -147,7 +227,7 @@ export function App() {
         />
       )}
 
-      {/* 4. Fullscreen 3D Mars Surface Exploration Game */}
+      {/* 6. Fullscreen 3D Mars Surface Exploration Game (DESIGNS.md Step 3) */}
       {currentScreen === 'surface_3d' && config && simState && (
         <Mars3DGameView
           config={config}
@@ -160,11 +240,11 @@ export function App() {
             }
           }}
           onConcludeMission={handleConcludeMission}
-          onAbortToWorkshop={() => setCurrentScreen('mission_design')}
+          onAbortToWorkshop={handleAbort}
         />
       )}
 
-      {/* 5. NASA Evaluation & Scientific Debrief */}
+      {/* 7. NASA Evaluation & Scientific Debrief (DESIGNS.md Step 4) */}
       {currentScreen === 'debrief' && debrief && (
         <DebriefScreen
           debrief={debrief}

@@ -6,9 +6,10 @@ import marsHeroImg from '../assets/images/spacecraft_interplanetary_179152086144
 
 interface ChallengeSelectViewProps {
   onSelectChallenge: (challenge: MissionChallenge) => void;
+  onSwitchToExpeditionMode?: () => void;
 }
 
-export const ChallengeSelectView: React.FC<ChallengeSelectViewProps> = ({ onSelectChallenge }) => {
+export const ChallengeSelectView: React.FC<ChallengeSelectViewProps> = ({ onSelectChallenge, onSwitchToExpeditionMode }) => {
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-950 text-slate-100 font-sans select-none">
       {/* Background Image Scrim */}
@@ -25,20 +26,31 @@ export const ChallengeSelectView: React.FC<ChallengeSelectViewProps> = ({ onSele
       {/* Main Container */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-10 flex-1 flex flex-col justify-center">
         {/* Top Header */}
-        <div className="mb-8 text-center sm:text-left">
-          <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-mono text-orange-400 font-bold uppercase tracking-wider mb-2">
-            <span>2026 NASA SPACE APPS CHALLENGE</span>
-            <span>·</span>
-            <span>SPACE MISSION DESIGNER</span>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-mono text-orange-400 font-bold uppercase tracking-wider mb-2">
+              <span>2026 NASA SPACE APPS CHALLENGE</span>
+              <span>·</span>
+              <span>SPACE MISSION DESIGNER</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
+              RED FRONTIER: MARS EXPEDITION
+            </h1>
+            <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
+              Every space mission is a high-stakes puzzle of competing demands. Balance launch vehicles,
+              orbital mechanics, spacecraft mass, electrical power, and scientific instruments to engineer
+              a complete mission from concept to the surface of Mars.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
-            RED FRONTIER: MARS EXPEDITION
-          </h1>
-          <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
-            Every space mission is a high-stakes puzzle of competing demands. Balance launch vehicles,
-            orbital mechanics, spacecraft mass, electrical power, and scientific instruments to engineer
-            a complete mission from concept to the surface of Mars.
-          </p>
+          {onSwitchToExpeditionMode && (
+            <button
+              onClick={onSwitchToExpeditionMode}
+              className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-xs font-mono text-orange-300 hover:text-white transition-all flex items-center gap-2 cursor-pointer shadow-md shrink-0"
+            >
+              <Rocket className="w-3.5 h-3.5 text-orange-400" />
+              <span>Quick 3D Expedition</span>
+            </button>
+          )}
         </div>
 
         {/* Challenge Selection Cards */}

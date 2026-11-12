@@ -4,9 +4,10 @@ import marsHeroImg from '../assets/images/spacecraft_interplanetary_179152086144
 
 interface ExpeditionSetupProps {
   onComplete: (spacecraftId: string, objectiveId: string) => void;
+  onSwitchToEngineeringMode?: () => void;
 }
 
-export const ExpeditionSetup: React.FC<ExpeditionSetupProps> = ({ onComplete }) => {
+export const ExpeditionSetup: React.FC<ExpeditionSetupProps> = ({ onComplete, onSwitchToEngineeringMode }) => {
   const [selectedCraft, setSelectedCraft] = useState<string>('odyssey');
   const [selectedObjective, setSelectedObjective] = useState<string>('obj_habitability');
 
@@ -81,18 +82,29 @@ export const ExpeditionSetup: React.FC<ExpeditionSetupProps> = ({ onComplete }) 
       {/* Main Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 flex-1 flex flex-col justify-center">
         {/* Step Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 text-xs font-mono text-orange-400 font-bold uppercase tracking-wider mb-1">
-            <span>EXPEDITION PLANNING</span>
-            <span>·</span>
-            <span>STEP 1 OF 2</span>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-mono text-orange-400 font-bold uppercase tracking-wider mb-1">
+              <span>EXPEDITION PLANNING</span>
+              <span>·</span>
+              <span>STEP 1 OF 2</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
+              RED FRONTIER
+            </h1>
+            <p className="text-sm sm:text-base text-slate-300 mt-1 max-w-xl">
+              Configure your spacecraft and primary scientific objective before departure.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
-            RED FRONTIER
-          </h1>
-          <p className="text-sm sm:text-base text-slate-300 mt-1 max-w-xl">
-            Configure your spacecraft and primary scientific objective before departure.
-          </p>
+          {onSwitchToEngineeringMode && (
+            <button
+              onClick={onSwitchToEngineeringMode}
+              className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-mono text-slate-300 hover:text-white transition-all flex items-center gap-2 cursor-pointer shadow-md"
+            >
+              <Shield className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Aerospace Deck</span>
+            </button>
+          )}
         </div>
 
         {/* 1. Spacecraft Architecture Picker */}
