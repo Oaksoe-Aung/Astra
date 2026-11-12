@@ -90,7 +90,7 @@ export const ExpeditionSetup: React.FC<ExpeditionSetupProps> = ({ onComplete, on
               <span>STEP 1 OF 2</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
-              RED FRONTIER
+              GREEN BACKTIER
             </h1>
             <p className="text-sm sm:text-base text-slate-300 mt-1 max-w-xl">
               Configure your spacecraft and primary scientific objective before departure.

@@ -50,7 +50,7 @@ export const DebriefScreen: React.FC<DebriefScreenProps> = ({
               </div>
               <div>
                 <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">
-                  Expedition Verdict · Red Frontier
+                  Expedition Verdict · Green Backtier
                 </div>
                 <h2 className="text-xl sm:text-2xl font-extrabold text-white">
                   {debrief.outcomeTitle || 'Mars Surface Mission Complete'}

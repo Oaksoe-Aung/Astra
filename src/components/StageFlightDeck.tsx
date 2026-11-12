@@ -164,7 +164,7 @@ export const StageFlightDeck: React.FC<StageFlightDeckProps> = ({
         marsAudio.playScanChime();
         setEdlPhase('LANDED');
         setCurrentStage('TOUCHDOWN');
-        addLog('[TOUCHDOWN CONFIRMED] Red Frontier Lander has touched down safely in Jezero Crater!');
+        addLog('[TOUCHDOWN CONFIRMED] Green Backtier Lander has touched down safely in Jezero Crater!');
       }
     }, 150);
   };

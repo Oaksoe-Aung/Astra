@@ -34,7 +34,7 @@ export const ChallengeSelectView: React.FC<ChallengeSelectViewProps> = ({ onSele
               <span>SPACE MISSION DESIGNER</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase">
-              RED FRONTIER: MARS EXPEDITION
+              GREEN BACKTIER: MARS EXPEDITION
             </h1>
             <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
               Every space mission is a high-stakes puzzle of competing demands. Balance launch vehicles,
